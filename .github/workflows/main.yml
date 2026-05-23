@@ -1,0 +1,64 @@
+name: Build & Publish to NuGet
+
+on:
+  push:
+    tags:
+      - 'v*'   # e.g. v1.0.0
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore Slck.Utility.sln
+
+      - name: Build
+        run: dotnet build src/Slck.Utility/Slck.Utility.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/Slck.Utility.Tests/Slck.Utility.Tests.csproj --configuration Release --no-restore --verbosity normal
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Pack
+        run: >
+          dotnet pack src/Slck.Utility/Slck.Utility.csproj
+          --configuration Release
+          --no-build
+          -p:Version=${{ steps.version.outputs.VERSION }}
+          -p:PackageReleaseNotes="See https://github.com/chandru415/Slck.Utility/blob/main/CHANGELOG.md"
+          -o ./artifacts
+
+      - name: Push to NuGet
+        run: >
+          dotnet nuget push ./artifacts/*.nupkg
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "v${{ steps.version.outputs.VERSION }}"
+          body_path: CHANGELOG.md
+          files: |
+            ./artifacts/*.nupkg
+            ./artifacts/*.snupkg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
