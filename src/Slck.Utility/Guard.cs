@@ -45,4 +45,23 @@ public static class Guard
         ArgumentOutOfRangeException.ThrowIfNegative(value, paramName);
         return value;
     }
+
+    /// <summary>
+    /// Throws <see cref="ArgumentOutOfRangeException"/> if <paramref name="value"/> is not positive.
+    /// </summary>
+    public static long Positive(long value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+    {
+        if (value <= 0)
+            throw new ArgumentOutOfRangeException(paramName, value, "Value must be positive.");
+        return value;
+    }
+
+    /// <summary>
+    /// Throws <see cref="ArgumentOutOfRangeException"/> if <paramref name="value"/> is negative.
+    /// </summary>
+    public static long NotNegative(long value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(value, paramName);
+        return value;
+    }
 }

@@ -30,4 +30,19 @@ public static class ConfigurationGuard
 
         return false;
     }
+
+    /// <summary>
+    /// Validates that the configuration value is not a placeholder and returns it.
+    /// Throws <see cref="InvalidOperationException"/> if the value is missing or contains a placeholder.
+    /// </summary>
+    /// <param name="value">The configuration value to validate.</param>
+    /// <param name="key">The configuration key name (used in the error message).</param>
+    /// <returns>The validated, non-placeholder value.</returns>
+    public static string Require(string? value, string key)
+    {
+        if (IsPlaceholder(value))
+            throw new InvalidOperationException(
+                $"Configuration key '{key}' is missing or contains a placeholder value.");
+        return value!;
+    }
 }

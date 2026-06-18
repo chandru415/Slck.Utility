@@ -71,6 +71,39 @@ public class DotEnvLoaderTests : IDisposable
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void Load_StripsInlineComments()
+    {
+        var envFile = CreateEnvFile("TEST_SLCK_INLINE=value # this is a comment");
+
+        DotEnvLoader.Load(envFile);
+        TrackKey("TEST_SLCK_INLINE");
+
+        Environment.GetEnvironmentVariable("TEST_SLCK_INLINE").Should().Be("value");
+    }
+
+    [Fact]
+    public void Load_PreservesHashInsideQuotedValues()
+    {
+        var envFile = CreateEnvFile("TEST_SLCK_HASH=\"value # with hash\"");
+
+        DotEnvLoader.Load(envFile);
+        TrackKey("TEST_SLCK_HASH");
+
+        Environment.GetEnvironmentVariable("TEST_SLCK_HASH").Should().Be("value # with hash");
+    }
+
+    [Fact]
+    public void Load_HandlesExportPrefix()
+    {
+        var envFile = CreateEnvFile("export TEST_SLCK_EXPORT=exported");
+
+        DotEnvLoader.Load(envFile);
+        TrackKey("TEST_SLCK_EXPORT");
+
+        Environment.GetEnvironmentVariable("TEST_SLCK_EXPORT").Should().Be("exported");
+    }
+
     private string CreateEnvFile(string content)
     {
         var path = Path.Combine(_tempDir, ".env");

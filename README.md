@@ -55,6 +55,54 @@ public void CreateUser(string email, string tenantId, int pageSize)
 | `Guard.Positive(value)` | `ArgumentOutOfRangeException` |
 | `Guard.NotNegative(value)` | `ArgumentOutOfRangeException` |
 
+> `Positive` and `NotNegative` support both `int` and `long` overloads.
+
+### ConfigurationGuard
+
+Validate configuration values at startup — catch placeholders and missing secrets before they cause runtime failures:
+
+```csharp
+using Slck.Utility;
+
+var secret = ConfigurationGuard.Require(config["Jwt:Secret"], "Jwt:Secret");
+// throws InvalidOperationException if value is null, whitespace, or "CHANGE_ME" / "your-*"
+```
+
+| Method | Throws |
+|--------|--------|
+| `ConfigurationGuard.IsPlaceholder(value)` | Returns `bool` |
+| `ConfigurationGuard.Require(value, key)` | `InvalidOperationException` |
+
+### Util
+
+General-purpose parsing helpers:
+
+```csharp
+using Slck.Utility;
+
+var tenantId = Util.ParseRequiredGuid(config["TenantId"], "TenantId");
+var optionalId = Util.ParseOptionalGuid(config["OptionalId"], "OptionalId");
+```
+
+| Method | Throws |
+|--------|--------|
+| `Util.ParseRequiredGuid(value, name)` | `ArgumentException` |
+| `Util.ParseOptionalGuid(value, name)` | `ArgumentException` (if non-empty and invalid) |
+
+### UriHelpers
+
+URI manipulation utilities for consistent base URL handling:
+
+```csharp
+using Slck.Utility;
+
+var baseUrl = UriHelpers.EnsureTrailingSlash("https://api.example.com/v1");
+// "https://api.example.com/v1/"
+
+var uri = UriHelpers.EnsureTrailingSlash(new Uri("https://api.example.com/v1"));
+// Uri: https://api.example.com/v1/
+```
+
 ## Targets
 
 - `net9.0`

@@ -39,4 +39,20 @@ public class UriHelpersTests
         var act = () => UriHelpers.EnsureTrailingSlash("not-a-uri");
         act.Should().Throw<ArgumentException>();
     }
+
+    [Fact]
+    public void EnsureTrailingSlash_UriOverload_AddsSlash()
+    {
+        var uri = new Uri("https://example.com/api");
+        UriHelpers.EnsureTrailingSlash(uri)
+            .Should().Be(new Uri("https://example.com/api/"));
+    }
+
+    [Fact]
+    public void EnsureTrailingSlash_UriOverload_PreservesSlash()
+    {
+        var uri = new Uri("https://example.com/api/");
+        UriHelpers.EnsureTrailingSlash(uri)
+            .Should().Be(new Uri("https://example.com/api/"));
+    }
 }

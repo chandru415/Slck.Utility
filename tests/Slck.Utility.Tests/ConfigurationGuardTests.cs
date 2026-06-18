@@ -26,4 +26,22 @@ public class ConfigurationGuardTests
     {
         ConfigurationGuard.IsPlaceholder(value).Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("CHANGE_ME")]
+    [InlineData("your-secret")]
+    public void Require_WithPlaceholderValues_ThrowsInvalidOperationException(string? value)
+    {
+        var act = () => ConfigurationGuard.Require(value, "TestKey");
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*TestKey*");
+    }
+
+    [Fact]
+    public void Require_WithValidValue_ReturnsValue()
+    {
+        ConfigurationGuard.Require("real-secret", "TestKey").Should().Be("real-secret");
+    }
 }

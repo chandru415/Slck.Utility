@@ -63,4 +63,32 @@ public class GuardTests
         var act = () => Guard.NotNegative(-1);
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
+
+    [Fact]
+    public void Positive_Long_WithPositiveValue_ReturnsValue()
+    {
+        Guard.Positive(5L).Should().Be(5L);
+    }
+
+    [Theory]
+    [InlineData(0L)]
+    [InlineData(-1L)]
+    public void Positive_Long_WithNonPositive_ThrowsArgumentOutOfRangeException(long value)
+    {
+        var act = () => Guard.Positive(value);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void NotNegative_Long_WithZero_ReturnsValue()
+    {
+        Guard.NotNegative(0L).Should().Be(0L);
+    }
+
+    [Fact]
+    public void NotNegative_Long_WithNegative_ThrowsArgumentOutOfRangeException()
+    {
+        var act = () => Guard.NotNegative(-1L);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }

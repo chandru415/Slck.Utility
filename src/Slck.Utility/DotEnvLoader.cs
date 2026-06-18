@@ -39,12 +39,15 @@ public static class DotEnvLoader
             if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
                 continue;
 
+            if (line.StartsWith("export ", StringComparison.OrdinalIgnoreCase))
+                line = line[7..].TrimStart();
+
             var separatorIndex = line.IndexOf('=');
             if (separatorIndex <= 0)
                 continue;
 
             var key = line[..separatorIndex].Trim();
-            var value = UnquoteValue(line[(separatorIndex + 1)..].Trim());
+            var value = ParseValue(line[(separatorIndex + 1)..].Trim());
 
             // Never overwrite existing environment variables — CI/CD values always win.
             if (!string.IsNullOrWhiteSpace(key)
@@ -69,7 +72,7 @@ public static class DotEnvLoader
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    private static string UnquoteValue(string value)
+    private static string ParseValue(string value)
     {
         if (value.Length >= 2)
         {
@@ -80,6 +83,8 @@ public static class DotEnvLoader
             }
         }
 
-        return value;
+        // Strip inline comments for unquoted values (space + #).
+        var commentIndex = value.IndexOf(" #", StringComparison.Ordinal);
+        return commentIndex >= 0 ? value[..commentIndex].TrimEnd() : value;
     }
 }

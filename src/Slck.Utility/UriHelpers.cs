@@ -26,4 +26,21 @@ public static class UriHelpers
 
         return builder.Uri.ToString();
     }
+
+    /// <summary>
+    /// Ensures the given <see cref="Uri"/> ends with a trailing slash on its path segment.
+    /// </summary>
+    public static Uri EnsureTrailingSlash(Uri uri)
+    {
+        ArgumentNullException.ThrowIfNull(uri);
+
+        var builder = new UriBuilder(uri)
+        {
+            Path = string.IsNullOrWhiteSpace(uri.AbsolutePath) || uri.AbsolutePath == "/"
+                ? "/"
+                : $"{uri.AbsolutePath.TrimEnd('/')}/"
+        };
+
+        return builder.Uri;
+    }
 }

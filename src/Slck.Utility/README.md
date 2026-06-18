@@ -54,6 +54,32 @@ public void CreateUser(string email, string tenantId)
 }
 ```
 
+### ConfigurationGuard
+
+```csharp
+using Slck.Utility;
+
+var secret = ConfigurationGuard.Require(config["Jwt:Secret"], "Jwt:Secret");
+```
+
+### Util
+
+```csharp
+using Slck.Utility;
+
+var tenantId = Util.ParseRequiredGuid(config["TenantId"], "TenantId");
+var optionalId = Util.ParseOptionalGuid(config["OptionalId"], "OptionalId");
+```
+
+### UriHelpers
+
+```csharp
+using Slck.Utility;
+
+var baseUrl = UriHelpers.EnsureTrailingSlash("https://api.example.com/v1");
+// "https://api.example.com/v1/"
+```
+
 ## License
 
 MIT
