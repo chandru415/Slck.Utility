@@ -36,18 +36,18 @@ public static class DotEnvLoader
         foreach (var rawLine in File.ReadAllLines(path))
         {
             var line = rawLine.Trim();
-            if (string.IsNullOrWhiteSpace(line) || line.StartsWith('#'))
+            if (string.IsNullOrWhiteSpace(line) || line[0] == '#')
                 continue;
 
             if (line.StartsWith("export ", StringComparison.OrdinalIgnoreCase))
-                line = line[7..].TrimStart();
+                line = line.Substring(7).TrimStart();
 
             var separatorIndex = line.IndexOf('=');
             if (separatorIndex <= 0)
                 continue;
 
-            var key = line[..separatorIndex].Trim();
-            var value = ParseValue(line[(separatorIndex + 1)..].Trim());
+            var key = line.Substring(0, separatorIndex).Trim();
+            var value = ParseValue(line.Substring(separatorIndex + 1).Trim());
 
             // Never overwrite existing environment variables — CI/CD values always win.
             if (!string.IsNullOrWhiteSpace(key)
@@ -76,15 +76,15 @@ public static class DotEnvLoader
     {
         if (value.Length >= 2)
         {
-            if ((value.StartsWith('"') && value.EndsWith('"'))
-                || (value.StartsWith('\'') && value.EndsWith('\'')))
+            if ((value[0] == '"' && value[value.Length - 1] == '"')
+                || (value[0] == '\'' && value[value.Length - 1] == '\''))
             {
-                return value[1..^1];
+                return value.Substring(1, value.Length - 2);
             }
         }
 
         // Strip inline comments for unquoted values (space + #).
         var commentIndex = value.IndexOf(" #", StringComparison.Ordinal);
-        return commentIndex >= 0 ? value[..commentIndex].TrimEnd() : value;
+        return commentIndex >= 0 ? value.Substring(0, commentIndex).TrimEnd() : value;
     }
 }

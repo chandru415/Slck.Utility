@@ -14,7 +14,12 @@ public static class Guard
     public static T NotNull<T>([NotNull] T? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
         where T : class
     {
+#if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(value, paramName);
+#else
+        if (value is null)
+            throw new ArgumentNullException(paramName);
+#endif
         return value;
     }
 
@@ -23,7 +28,14 @@ public static class Guard
     /// </summary>
     public static string NotNullOrWhiteSpace([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
     {
+#if NET7_0_OR_GREATER
         ArgumentException.ThrowIfNullOrWhiteSpace(value, paramName);
+#else
+        if (value is null)
+            throw new ArgumentException("Value cannot be null or whitespace.", paramName);
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Value cannot be null or whitespace.", paramName);
+#endif
         return value;
     }
 
@@ -42,7 +54,12 @@ public static class Guard
     /// </summary>
     public static int NotNegative(int value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
     {
+#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfNegative(value, paramName);
+#else
+        if (value < 0)
+            throw new ArgumentOutOfRangeException(paramName, value, $"'{paramName}' must be a non-negative value.");
+#endif
         return value;
     }
 
@@ -61,7 +78,12 @@ public static class Guard
     /// </summary>
     public static long NotNegative(long value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
     {
+#if NET8_0_OR_GREATER
         ArgumentOutOfRangeException.ThrowIfNegative(value, paramName);
+#else
+        if (value < 0)
+            throw new ArgumentOutOfRangeException(paramName, value, $"'{paramName}' must be a non-negative value.");
+#endif
         return value;
     }
 }

@@ -32,7 +32,12 @@ public static class UriHelpers
     /// </summary>
     public static Uri EnsureTrailingSlash(Uri uri)
     {
+#if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(uri);
+#else
+        if (uri is null)
+            throw new ArgumentNullException(nameof(uri));
+#endif
 
         var builder = new UriBuilder(uri)
         {

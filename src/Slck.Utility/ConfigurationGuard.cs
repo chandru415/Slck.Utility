@@ -24,7 +24,7 @@ public static class ConfigurationGuard
 
         foreach (var prefix in PlaceholderPrefixes)
         {
-            if (value.Contains(prefix, StringComparison.OrdinalIgnoreCase))
+            if (value!.IndexOf(prefix, StringComparison.OrdinalIgnoreCase) >= 0)
                 return true;
         }
 
